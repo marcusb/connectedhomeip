@@ -293,7 +293,7 @@ gn_args=(
     # Make all possible human readable tracing available.
     "matter_log_json_payload_hex=true"
     "matter_log_json_payload_decode_full=true"
-    "matter_enable_tracing_support=true"
+    "matter_enable_tracing_support=false"
     # Setup selected configuration.
     "chip_detail_logging=$chip_detail_logging"
     "chip_project_config_include_dirs=[\"//config/python\"]"
