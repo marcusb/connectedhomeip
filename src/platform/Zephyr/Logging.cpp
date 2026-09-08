@@ -71,7 +71,16 @@ void ENFORCE_FORMAT(3, 0) LogV(const char * module, uint8_t category, const char
         break;
     case kLogCategory_Progress:
     default:
-        LOG_INF(LOG_FORMAT, LOG_MESSAGE(allocatedMsg));
+        if (strcmp(module, "EM") == 0 || strcmp(module, "IN") == 0 || 
+            strcmp(module, "SC") == 0 || strcmp(module, "IM") == 0 || 
+            strcmp(module, "DMG") == 0 || strcmp(module, "ZCL") == 0)
+        {
+            LOG_DBG(LOG_FORMAT, LOG_MESSAGE(allocatedMsg));
+        }
+        else
+        {
+            LOG_INF(LOG_FORMAT, LOG_MESSAGE(allocatedMsg));
+        }
         break;
     case kLogCategory_Detail:
         LOG_DBG(LOG_FORMAT, LOG_MESSAGE(allocatedMsg));
