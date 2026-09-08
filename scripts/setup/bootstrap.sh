@@ -68,7 +68,7 @@ _submodules_need_updating() {
   )
 
   for submodule_path in "${_SUBMODULE_PATHS[@]}"; do
-    if git submodule status "$submodule_path" | grep -E '^-' >/dev/null 2>&1; then
+    if git -C "$_CHIP_ROOT" submodule status "$submodule_path" | grep -E '^-' >/dev/null 2>&1; then
       echo "git shows that $submodule_path has changes"
       unset _SUBMODULE_PATHS
       return 0 # Success
