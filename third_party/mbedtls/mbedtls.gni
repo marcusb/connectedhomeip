@@ -24,6 +24,7 @@ template("mbedtls_target") {
 
   config("${mbedtls_target_name}_warnings") {
     cflags = [
+      "-Wno-error=cpp",
       "-Wno-maybe-uninitialized",
       "-Wno-string-concatenation",
       "-Wno-unused-but-set-parameter",
@@ -43,7 +44,8 @@ template("mbedtls_target") {
   }
 
   config("${mbedtls_target_name}_config") {
-    include_dirs = [ "${_mbedtls_root}/include" ]
+    include_dirs = [ "${_mbedtls_root}/include", "//third_party/mbedtls" ]
+    defines = [ "MBEDTLS_USER_CONFIG_FILE=\"mbedtls_config.h\"" ]
   }
 
   static_library(mbedtls_target_name) {
