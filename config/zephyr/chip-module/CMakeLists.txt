@@ -162,7 +162,7 @@ if(CONFIG_CHIP)
         # Thread-only (SRP-client backed DNS-SD).
         matter_add_gn_arg_string("chip_mdns" "platform")
     else()
-        matter_add_gn_arg_string("chip_mdns" "none")
+        matter_add_gn_arg_string("chip_mdns" "minimal")
     endif()
 
     if(CONFIG_CHIP_PW_RPC)
