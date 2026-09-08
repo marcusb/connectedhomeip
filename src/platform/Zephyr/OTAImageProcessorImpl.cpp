@@ -152,7 +152,7 @@ CHIP_ERROR OTAImageProcessorImpl::ProcessBlock(ByteSpan & aBlock)
     }
 
     // Report the result back to the downloader asynchronously.
-    return DeviceLayer::SystemLayer().ScheduleLambda([this, error, aBlock] {
+    return DeviceLayer::SystemLayer().ScheduleLambda([this, error] {
         if (error == CHIP_NO_ERROR)
         {
             ChipLogDetail(SoftwareUpdate, "Downloaded %u/%u bytes", static_cast<unsigned>(mParams.downloadedBytes),

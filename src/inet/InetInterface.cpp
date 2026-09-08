@@ -54,6 +54,10 @@
 #endif // (CHIP_SYSTEM_CONFIG_USE_SOCKETS || CHIP_SYSTEM_CONFIG_USE_NETWORK_FRAMEWORK) && CHIP_SYSTEM_CONFIG_USE_BSD_IFADDRS
 
 #if CHIP_SYSTEM_CONFIG_USE_ZEPHYR_NET_IF
+#undef s6_addr
+#undef s6_addr16
+#undef s6_addr32
+#undef ifr_name
 #include <zephyr/net/net_if.h>
 #endif // CHIP_SYSTEM_CONFIG_USE_ZEPHYR_NET_IF
 
@@ -999,7 +1003,9 @@ CHIP_ERROR InterfaceAddressIterator::GetAddress(IPAddress & outIPAddress)
 {
     if (HasCurrent())
     {
-        outIPAddress = IPAddress(mIpv6->unicast[mCurAddrIndex].address.in6_addr);
+        IPAddress tempOut;
+        memcpy(tempOut.Addr, mIpv6->unicast[mCurAddrIndex].address.in6_addr.s6_addr, 16);
+        outIPAddress = tempOut;
         return CHIP_NO_ERROR;
     }
     return CHIP_ERROR_SENTINEL;
@@ -1049,10 +1055,12 @@ CHIP_ERROR InterfaceId::GetLinkLocalAddr(IPAddress * llAddr) const
     net_if * const iface = mPlatformInterface ? net_if_get_by_index(mPlatformInterface) : net_if_get_default();
     VerifyOrReturnError(iface != nullptr, INET_ERROR_ADDRESS_NOT_FOUND);
 
-    in6_addr * const ip6_addr = net_if_ipv6_get_ll(iface, NET_ADDR_PREFERRED);
+    struct net_in6_addr * const ip6_addr = net_if_ipv6_get_ll(iface, NET_ADDR_PREFERRED);
     VerifyOrReturnError(ip6_addr != nullptr, INET_ERROR_ADDRESS_NOT_FOUND);
 
-    *llAddr = IPAddress(*ip6_addr);
+    IPAddress tempAddr;
+    memcpy(tempAddr.Addr, ip6_addr->s6_addr, 16);
+    *llAddr = tempAddr;
 
     return CHIP_NO_ERROR;
 }

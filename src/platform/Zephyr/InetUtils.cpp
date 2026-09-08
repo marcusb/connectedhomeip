@@ -19,6 +19,10 @@
 
 #include "InetUtils.h"
 
+#undef s6_addr
+#undef s6_addr16
+#undef s6_addr32
+#undef ifr_name
 #include <zephyr/net/net_if.h>
 
 namespace chip {
