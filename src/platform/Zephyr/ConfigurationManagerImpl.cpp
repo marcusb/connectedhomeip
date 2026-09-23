@@ -34,6 +34,10 @@
 
 #ifdef CHIP_DEVICE_CONFIG_ENABLE_ETHERNET
 #if (CHIP_DEVICE_CONFIG_ENABLE_WIFI) || (CHIP_DEVICE_CONFIG_ENABLE_ETHERNET)
+#undef s6_addr
+#undef s6_addr16
+#undef s6_addr32
+#undef ifr_name
 #include <zephyr/net/net_if.h>
 #endif //(CHIP_DEVICE_CONFIG_ENABLE_WIFI) || (CHIP_DEVICE_CONFIG_ENABLE_ETHERNET)
 #endif // CHIP_DEVICE_CONFIG_ENABLE_ETHERNET
