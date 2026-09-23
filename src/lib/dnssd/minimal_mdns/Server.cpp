@@ -292,7 +292,8 @@ CHIP_ERROR ServerBase::DirectSend(chip::System::PacketBufferHandle && data, cons
             return chip::Loop::Continue;
         }
 
-        err = info->mListenUdp->SendTo(addr, port, std::move(data));
+        chip::Inet::InterfaceId sendIf = interface.IsPresent() ? interface : boundIf;
+        err = info->mListenUdp->SendTo(addr, port, std::move(data), sendIf);
         return chip::Loop::Break;
     });
 
