@@ -79,27 +79,58 @@ CHIP_ERROR JoinLeaveMulticastGroup(net_if * iface, const Inet::IPAddress & addre
 #endif
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI || CHIP_DEVICE_CONFIG_ENABLE_ETHERNET
-    // Use MLD join/leave so Ethernet/Wi-Fi L2 installs the HW multicast MAC
-    // filter (e.g. 33:33:00:00:00:fb for ff02::fb). Plain maddr_add/join does
-    // not program HW multicast MAC filters, so mDNS queries are dropped after other
-    // filters (all-nodes / solicited-node) enable filtering.
-    const InetUtils::ZephyrIn6Addr in6Addr = InetUtils::ToZephyrAddr(address);
-    int status;
+    if (address.Type() == IPAddressType::kIPv6)
+    {
+        // Use MLD join/leave so Ethernet/Wi-Fi L2 installs the HW multicast MAC
+        // filter (e.g. 33:33:00:00:00:fb for ff02::fb). Plain maddr_add/join does
+        // not program HW multicast MAC filters, so mDNS queries are dropped after other
+        // filters (all-nodes / solicited-node) enable filtering.
+        const InetUtils::ZephyrIn6Addr in6Addr = InetUtils::ToZephyrAddr(address);
+        int status;
 
-    if (operation == UDPEndPointImplSockets::MulticastOperation::kJoin)
-    {
-        status = net_ipv6_mld_join(iface, &in6Addr);
-        VerifyOrReturnError((status == 0 || status == -EALREADY || status == -ENETDOWN), System::MapErrorZephyr(status));
+        if (operation == UDPEndPointImplSockets::MulticastOperation::kJoin)
+        {
+            status = net_ipv6_mld_join(iface, &in6Addr);
+            VerifyOrReturnError((status == 0 || status == -EALREADY || status == -ENETDOWN), System::MapErrorZephyr(status));
+        }
+        else if (operation == UDPEndPointImplSockets::MulticastOperation::kLeave)
+        {
+            status = net_ipv6_mld_leave(iface, &in6Addr);
+            VerifyOrReturnError((status == 0 || status == -ENETDOWN), System::MapErrorZephyr(status));
+        }
+        else
+        {
+            return CHIP_ERROR_INCORRECT_STATE;
+        }
     }
-    else if (operation == UDPEndPointImplSockets::MulticastOperation::kLeave)
+#if INET_CONFIG_ENABLE_IPV4
+    else if (address.Type() == IPAddressType::kIPv4)
     {
-        status = net_ipv6_mld_leave(iface, &in6Addr);
-        VerifyOrReturnError((status == 0 || status == -ENETDOWN), System::MapErrorZephyr(status));
+        struct net_in_addr in4Addr = address.ToIPv4();
+        if (operation == UDPEndPointImplSockets::MulticastOperation::kJoin)
+        {
+            net_if_mcast_addr * maddr = net_if_ipv4_maddr_add(iface, &in4Addr);
+            if (maddr && !net_if_ipv4_maddr_is_joined(maddr))
+            {
+                net_if_ipv4_maddr_join(iface, maddr);
+                net_if_mcast_monitor(iface, &maddr->address, true);
+            }
+        }
+        else if (operation == UDPEndPointImplSockets::MulticastOperation::kLeave)
+        {
+            net_if_mcast_addr * maddr = net_if_ipv4_maddr_lookup(&in4Addr, &iface);
+            if (maddr)
+            {
+                net_if_mcast_monitor(iface, &maddr->address, false);
+            }
+            VerifyOrReturnError(net_if_ipv4_maddr_rm(iface, &in4Addr), CHIP_ERROR_INVALID_ADDRESS);
+        }
+        else
+        {
+            return CHIP_ERROR_INCORRECT_STATE;
+        }
     }
-    else
-    {
-        return CHIP_ERROR_INCORRECT_STATE;
-    }
+#endif
 #endif
 
     return CHIP_NO_ERROR;

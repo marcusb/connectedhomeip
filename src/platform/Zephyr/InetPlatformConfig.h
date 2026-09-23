@@ -44,3 +44,12 @@
 #ifdef HAVE_SO_BINDTODEVICE
 #undef HAVE_SO_BINDTODEVICE
 #endif // HAVE_SO_BINDTODEVICE
+
+#ifndef IPV6_MULTICAST_IMPLEMENTED
+#define IPV6_MULTICAST_IMPLEMENTED
+#endif
+
+#ifndef ipv6mr_interface
+#define ipv6mr_interface ipv6mr_ifindex
+#endif
+
