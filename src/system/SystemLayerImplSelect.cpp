@@ -622,6 +622,13 @@ void LayerImplSelect::PrepareEvents()
 
 void LayerImplSelect::WaitForEvents()
 {
+#if defined(CONFIG_ARCH_POSIX)
+    if (mNextTimeout.tv_sec > 0 || mNextTimeout.tv_usec > 10000)
+    {
+        mNextTimeout.tv_sec = 0;
+        mNextTimeout.tv_usec = 10000;
+    }
+#endif
     mSelectResult = select(mMaxFd + 1, &mSelected.mReadSet, &mSelected.mWriteSet, &mSelected.mErrorSet, &mNextTimeout);
 }
 

@@ -192,6 +192,9 @@ void GenericPlatformManagerImpl_Zephyr<ImplClass>::_RunEventLoop(void)
         SystemLayerSelectLoop().HandleEvents();
 
         ProcessDeviceEvents();
+#if defined(CONFIG_ARCH_POSIX)
+        k_sleep(K_MSEC(1));
+#endif
     }
     SystemLayerSelectLoop().EventLoopEnds();
 
