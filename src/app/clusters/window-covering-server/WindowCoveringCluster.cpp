@@ -455,6 +455,10 @@ std::optional<DataModel::ActionReturnStatus> WindowCoveringCluster::HandleUpOrOp
     {
         SetTargetPositionLiftPercent100ths(NPercent100ths(kWcPercent100thsMinOpen));
     }
+    else
+    {
+        UpdateOperationalStateForField(OperationalStatus::kLift, OperationalState::MovingUpOrOpen);
+    }
 
     if (GetFeatureMap().Has(Feature::kPositionAwareTilt))
     {
@@ -484,6 +488,11 @@ std::optional<DataModel::ActionReturnStatus> WindowCoveringCluster::HandleDownOr
     {
         SetTargetPositionLiftPercent100ths(NPercent100ths(kWcPercent100thsMaxClosed));
     }
+    else
+    {
+        UpdateOperationalStateForField(OperationalStatus::kLift, OperationalState::MovingDownOrClose);
+    }
+
     if (GetFeatureMap().Has(Feature::kPositionAwareTilt))
     {
         SetTargetPositionTiltPercent100ths(NPercent100ths(kWcPercent100thsMaxClosed));
@@ -526,6 +535,10 @@ WindowCoveringCluster::HandleStopMotion(const Commands::StopMotion::DecodableTyp
         if (GetFeatureMap().Has(Feature::kPositionAwareLift))
         {
             SetTargetPositionLiftPercent100ths(GetCurrentPositionLiftPercent100ths());
+        }
+        else
+        {
+            UpdateOperationalStateForField(OperationalStatus::kLift, OperationalState::Stall);
         }
         if (GetFeatureMap().Has(Feature::kPositionAwareTilt))
         {
